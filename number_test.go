@@ -1,4 +1,4 @@
-// H31.02.10/H31.02.11 by SUZUKI Hisao
+// H31.02.10/H31.02.12 by SUZUKI Hisao
 
 package goarith
 
@@ -53,6 +53,43 @@ func ExampleFloat64_String() {
 	// Output:
 	// 1.234
 	// 5.0
+}
+
+func ExampleAsNumber() {
+	a := AsNumber(2147483647)
+	fmt.Printf("%T %s\n", a, a.String())
+	a = AsNumber(2147483648)
+	fmt.Printf("%T %s\n", a, a.String())
+	a = AsNumber(-2147483648)
+	fmt.Printf("%T %s\n", a, a.String())
+	a = AsNumber(-2147483649)
+	fmt.Printf("%T %s\n", a, a.String())
+	// Output:
+	// goarith.Int32 2147483647
+	// goarith.Int64 2147483648
+	// goarith.Int32 -2147483648
+	// goarith.Int64 -2147483649
+}
+
+func ExampleFloat64_Int() {
+	a := Float64(1.234)
+	i, b := a.Int()
+	fmt.Printf("%d %t", i, b)
+	// Output:
+	// 1 false
+}
+
+func ExampleBigInt_Int() {
+	x := big.NewInt(100)
+	a := (*BigInt)(x)
+	i, b := a.Int()
+	fmt.Printf("%d %t\n", i, b)
+	x.SetString("123456789012345678901234567890", 0)
+	i, b = a.Int()
+	fmt.Printf("%t %t\n", i == MaxInt, b)
+	// Output:
+	// 100 true
+	// true false
 }
 
 func ExampleInt64_QuoRem() {

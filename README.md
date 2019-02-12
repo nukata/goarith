@@ -12,13 +12,17 @@ type Float64 float64
 type BigInt big.Int
 ```
 
-each of which implements the interface, `Number`:
+`Int32`, `Int64`, `Float64` and `*BigInt` implement `Number`:
 
 ```Go
 // Number is a general numeric type.
 type Number interface {
 	// String returns a string representation of the number.
 	String() string
+
+	// Int returns the int value for this and a bool indicating whether
+	// the int value represents this exactly.
+	Int() (i int, exact bool)
 
 	// Add adds this and b (i.e. it return this + b).
 	Add(b Number) Number
@@ -40,7 +44,7 @@ type Number interface {
 	// RQuo returns the rounded quotient this/b.
 	RQuo(b Number) Float64
 
-	// QuoRem returns the pair of the quotient and the remainder.
+	// QuoRem returns the quotient and the remainder of this/b.
 	QuoRem(b Number) (quotient Number, remainder Number)
 }
 ```
@@ -58,7 +62,7 @@ import (
 )
 
 func main() {
-	a := goarith.AsNumber(1)
+	var a goarith.Number = goarith.Int32(1)
 	for i := goarith.Int32(2); i <= 30; i++ {
 		a = a.Mul(i)
 		if i%10 == 0 {

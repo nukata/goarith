@@ -1,4 +1,4 @@
-// H31.02.10/H31.02.11 by SUZUKI Hisao
+// H31.02.10/H31.02.12 by SUZUKI Hisao
 
 // Package goarith implements general numeric arithmetic.
 package goarith
@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"math"
 	"math/big"
+	"math/bits"
 	"strconv"
 	"strings"
 )
@@ -15,6 +16,10 @@ import (
 type Number interface {
 	// String returns a string representation of the number.
 	String() string
+
+	// Int returns the int value for this and a bool indicating whether
+	// the int value represents this exactly.
+	Int() (i int, exact bool)
 
 	// Add adds this and b (i.e. it return this + b).
 	Add(b Number) Number
@@ -36,7 +41,7 @@ type Number interface {
 	// RQuo returns the rounded quotient this/b.
 	RQuo(b Number) Float64
 
-	// QuoRem returns the pair of the quotient and the remainder.
+	// QuoRem returns the quotient and the remainder of this/b.
 	QuoRem(b Number) (quotient Number, remainder Number)
 }
 
@@ -49,8 +54,13 @@ type Int64 int64
 // Float64 implements Number.
 type Float64 float64
 
-// BigInt implements Number.
+// *BigInt implements Number.
 type BigInt big.Int
+
+const (
+	MaxInt = (1<<bits.UintSize)/2 - 1
+	MinInt = (1 << bits.UintSize) / -2
+)
 
 // String methods
 
@@ -75,8 +85,8 @@ func (a *BigInt) String() string {
 }
 
 // AsNumber converts a numeric value into a Number.
-// For Int32, Int64, Float64 and *BigInt, it behaves as an identity function.
 // The numeric value may be int32, int64, int, float32, float64 or *big.Int.
+// For Int32, Int64, Float64 and *BigInt, it behaves as an identity function.
 // For the other types, it returns nil.
 func AsNumber(a interface{}) Number {
 	switch x := a.(type) {
@@ -104,6 +114,40 @@ func AsNumber(a interface{}) Number {
 	return nil
 }
 
+// Int methods
+
+func (a Int32) Int() (int, bool) {
+	return int(a), true
+}
+
+func (a Int64) Int() (int, bool) {
+	if bits.UintSize >= 64 {
+		return int(a), true
+	} else if MinInt <= a && a <= MaxInt {
+		return int(a), true
+	} else if a < 0 {
+		return MinInt, false
+	} else {
+		return MaxInt, false
+	}
+}
+
+func (a Float64) Int() (int, bool) {
+	return int(a), false
+}
+
+func (a *BigInt) Int() (int, bool) {
+	x := (*big.Int)(a)
+	if x.IsInt64() {
+		i := x.Int64()
+		return Int64(i).Int()
+	} else if x.Sign() < 0 {
+		return MinInt, false
+	} else {
+		return MaxInt, false
+	}
+}
+
 // Utilities
 
 func (a *BigInt) toFloat64() Float64 {
@@ -113,8 +157,8 @@ func (a *BigInt) toFloat64() Float64 {
 }
 
 func (a Int64) reduce() Number {
-	if i := Int32(a); Int64(i) == a {
-		return i
+	if math.MinInt32 <= a && a <= math.MaxInt32 {
+		return Int32(a)
 	}
 	return a
 }
