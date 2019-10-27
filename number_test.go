@@ -1,4 +1,4 @@
-// H31.02.10/H31.02.12 by SUZUKI Hisao
+// H31.02.10/R01.10.27 by SUZUKI Hisao
 
 package goarith
 
@@ -117,11 +117,11 @@ func ExampleFloat64_QuoRem() {
 	q, r = Float64(-13.4).QuoRem(Float64(1))
 	fmt.Printf("%T %s, %T %s\n", q, q.String(), r, r.String())
 	// Output:
-	// goarith.Float64 3.0, goarith.Float64 1.0
-	// goarith.Float64 -3.0, goarith.Float64 -1.0
-	// goarith.Float64 -3.0, goarith.Float64 1.0
-	// goarith.Float64 13.0, goarith.Float64 0.40000000000000036
-	// goarith.Float64 -13.0, goarith.Float64 -0.40000000000000036
+	// goarith.Int32 3, goarith.Float64 1.0
+	// goarith.Int32 -3, goarith.Float64 -1.0
+	// goarith.Int32 -3, goarith.Float64 1.0
+	// goarith.Int32 13, goarith.Float64 0.40000000000000036
+	// goarith.Int32 -13, goarith.Float64 -0.40000000000000036
 }
 
 func ExampleBigInt_QuoRem() {

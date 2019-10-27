@@ -1,4 +1,4 @@
-// H31.02.10/H31.02.12 by SUZUKI Hisao
+// H31.02.10/R01.10.27 by SUZUKI Hisao
 
 // Package goarith implements general numeric arithmetic.
 package goarith
@@ -38,10 +38,11 @@ type Number interface {
 	// Mul multiplies this by b (i.e. it returns this * b).
 	Mul(b Number) Number
 
-	// RQuo returns the rounded quotient this/b.
+	// RQuo returns the rounded quotient of this and b.
 	RQuo(b Number) Float64
 
-	// QuoRem returns the quotient and the remainder of this/b.
+	// QuoRem returns the quotient and the remainder of this and b.
+	// The quotient will be an Int32, Int64 or BigInt.
 	QuoRem(b Number) (quotient Number, remainder Number)
 }
 
@@ -242,9 +243,16 @@ func (a Int64) quoRemInt64(b Int64) (Number, Number) {
 	return (a / b).reduce(), (a % b).reduce()
 }
 
-func (a Float64) quoRemFloat64(b Float64) (Float64, Float64) {
+func (a Float64) quoRemFloat64(b Float64) (Number, Float64) {
 	q := math.Trunc(float64(a) / float64(b))
 	r := math.Mod(float64(a), float64(b))
+	if !math.IsInf(q, 0) && !math.IsNaN(q) {
+		s := fmt.Sprintf("%.0f", q)
+		z := new(big.Int)
+		if _, ok := z.SetString(s, 10); ok {
+			return (*BigInt)(z).reduce(), Float64(r)
+		}
+	}
 	return Float64(q), Float64(r)
 }
 

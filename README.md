@@ -41,10 +41,11 @@ type Number interface {
 	// Mul multiplies this by b (i.e. it returns this * b).
 	Mul(b Number) Number
 
-	// RQuo returns the rounded quotient this/b.
+	// RQuo returns the rounded quotient of this and b.
 	RQuo(b Number) Float64
 
-	// QuoRem returns the quotient and the remainder of this/b.
+	// QuoRem returns the quotient and the remainder of this and b.
+	// The quotient will be an Int32, Int64 or BigInt.
 	QuoRem(b Number) (quotient Number, remainder Number)
 }
 ```
